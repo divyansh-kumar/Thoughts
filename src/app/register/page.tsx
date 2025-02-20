@@ -1,7 +1,9 @@
+// app/register/page.tsx
 'use client';
 
 import { useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
 export default function RegisterPage() {
   const [formData, setFormData] = useState({
@@ -9,9 +11,27 @@ export default function RegisterPage() {
     email: '',
     password: '',
   });
+  const router = useRouter();
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
+    try {
+      const res = await fetch('/api/signup', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        alert(data.error || 'Registration failed');
+        return;
+      }
+      alert('Registration successful! Please login.');
+      router.push('/login');
+    } catch (error) {
+      console.error('Registration error:', error);
+      alert('An error occurred during registration.');
+    }
   };
 
   return (
@@ -24,7 +44,10 @@ export default function RegisterPage() {
             type="text"
             className="input-field"
             required
-            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+            value={formData.name}
+            onChange={(e) =>
+              setFormData({ ...formData, name: e.target.value })
+            }
           />
         </div>
         <div className="mb-4">
@@ -33,7 +56,10 @@ export default function RegisterPage() {
             type="email"
             className="input-field"
             required
-            onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+            value={formData.email}
+            onChange={(e) =>
+              setFormData({ ...formData, email: e.target.value })
+            }
           />
         </div>
         <div className="mb-4">
@@ -42,7 +68,10 @@ export default function RegisterPage() {
             type="password"
             className="input-field"
             required
-            onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+            value={formData.password}
+            onChange={(e) =>
+              setFormData({ ...formData, password: e.target.value })
+            }
           />
         </div>
         <button type="submit" className="btn-primary w-full mb-4">

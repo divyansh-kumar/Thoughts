@@ -9,7 +9,7 @@ export default function TopBar() {
         </h1>
         <div className="flex space-x-4">
           <Link
-            href="/create-post"
+            href="/create"
             className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-colors"
           >
             Create Post

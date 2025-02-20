@@ -1,16 +1,38 @@
+// app/login/page.tsx
 'use client';
 
 import { useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
 export default function LoginPage() {
   const [credentials, setCredentials] = useState({
     email: '',
     password: '',
   });
+  const router = useRouter();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    try {
+      const res = await fetch('/api/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(credentials),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        alert(data.error || 'Login failed');
+        return;
+      }
+      // Save UID (and token if needed) to localStorage
+      localStorage.setItem('uid', data.userID);
+      localStorage.setItem('token', data.token);
+      router.push('/home');
+    } catch (error) {
+      console.error('Login error:', error);
+      alert('An error occurred during login.');
+    }
   };
 
   return (
@@ -23,7 +45,10 @@ export default function LoginPage() {
             type="email"
             className="input-field"
             required
-            onChange={(e) => setCredentials({ ...credentials, email: e.target.value })}
+            value={credentials.email}
+            onChange={(e) =>
+              setCredentials({ ...credentials, email: e.target.value })
+            }
           />
         </div>
         <div className="mb-4">
@@ -32,7 +57,10 @@ export default function LoginPage() {
             type="password"
             className="input-field"
             required
-            onChange={(e) => setCredentials({ ...credentials, password: e.target.value })}
+            value={credentials.password}
+            onChange={(e) =>
+              setCredentials({ ...credentials, password: e.target.value })
+            }
           />
         </div>
         <button type="submit" className="btn-primary w-full mb-4">
