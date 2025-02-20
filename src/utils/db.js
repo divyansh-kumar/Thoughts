@@ -1,3 +1,4 @@
+import { release } from 'os';
 import { Pool } from 'pg';
 
 const pool = new Pool({
@@ -17,3 +18,4 @@ export default async function query(text, params) {
       client.release();
     }
   }
+
