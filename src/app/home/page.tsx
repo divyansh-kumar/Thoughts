@@ -11,7 +11,7 @@ const IMAGE_BASE_URL = "https://s3.us-east-005.backblazeb2.com/divyansh-testing"
 export default function Home() {
   const [posts, setPosts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  
+
   // Fetch posts on mount
   useEffect(() => {
     async function fetchPosts() {
@@ -97,6 +97,8 @@ function PostCard({ post }: { post: any }) {
 
   return (
     <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 hover:shadow-xl transition-shadow duration-300">
+
+
       {/* Owner button and post details */}
       <div className="mb-2">
         <Link href={`/user/${post.user_id}`}>
@@ -112,56 +114,58 @@ function PostCard({ post }: { post: any }) {
         </p>
       </div>
 
-      {/* Layout: image on left, comments on right */}
-      <div className="flex flex-row gap-6">
-        {/* Image Section */}
-        {post.image_url && (
-          <div className="w-1/2">
-            <div className="relative rounded-lg overflow-hidden">
-              <Image
-                src={`${IMAGE_BASE_URL}${post.image_url}`}
-                alt={post.title}
-                width={400}
-                height={300}
-                className="object-cover"
-              />
-            </div>
-          </div>
-        )}
 
-        {/* Comments Section as a Table */}
-        <div className="w-1/2 flex flex-col justify-start">
-          <h3 className="font-semibold text-lg mb-2">Comments</h3>
-          <div className="overflow-x-auto">
-            <table className="min-w-full border border-gray-200 dark:border-gray-700">
-              <thead className="bg-gray-100 dark:bg-gray-700">
-                <tr>
-                  <th className="px-4 py-2 text-left text-sm font-medium text-gray-700 dark:text-gray-300">
-                    Comment
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="bg-white dark:bg-gray-800">
-                {comments.length > 0 ? (
-                  comments.map((comment: string, index: number) => (
-                    <tr key={index} className="border-t border-gray-200 dark:border-gray-700">
+      <div className="flex justify-between">
+        <div>
+          {/* Image Section */}
+          {post.image_url && (
+            <Image
+              src={`${IMAGE_BASE_URL}${post.image_url}`}
+              alt={post.title}
+              width={800}
+              height={300}
+              className="object-cover"
+            />
+
+          )}
+        </div>
+        <div>
+          {/* Comments Section as a Table */}
+          <div className="justify-start">
+            <h3 className="font-semibold text-lg mb-2">Comments</h3>
+            <div>
+              <table className="min-w-full border border-gray-200 dark:border-gray-700">
+                <thead className="bg-gray-100 dark:bg-gray-700">
+                  <tr>
+                    <th className="px-4 py-2 text-left text-sm font-medium text-gray-700 dark:text-gray-300">
+                      Comment
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white dark:bg-gray-800">
+                  {comments.length > 0 ? (
+                    comments.map((comment: string, index: number) => (
+                      <tr key={index} className="border-t border-gray-200 dark:border-gray-700">
+                        <td className="px-4 py-2 text-sm text-gray-800 dark:text-gray-200">
+                          {comment}
+                        </td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
                       <td className="px-4 py-2 text-sm text-gray-800 dark:text-gray-200">
-                        {comment}
+                        No comments yet.
                       </td>
                     </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td className="px-4 py-2 text-sm text-gray-800 dark:text-gray-200">
-                      No comments yet.
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
+                  )}
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
       </div>
+
+
 
       {/* Like/Comment Buttons */}
       <div className="flex space-x-4 mt-6">
