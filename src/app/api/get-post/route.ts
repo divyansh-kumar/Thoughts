@@ -3,10 +3,22 @@ import query from '../../../utils/db';
 export async function GET() {
   try {
     const result = await query(`
-      SELECT id, title, description, image_url, user_id, likes, comments, created_at 
-      FROM posts 
-      ORDER BY created_at DESC
+      SELECT 
+        posts.id, 
+        posts.title, 
+        posts.description, 
+        posts.image_url, 
+        posts.user_id, 
+        users.name, 
+        posts.likes, 
+        posts.comments, 
+        posts.created_at 
+      FROM posts
+      JOIN users ON posts.user_id = users.uid
+      ORDER BY posts.created_at DESC
     `);
+    
+    console.log(result.rows);
     
     return new Response(JSON.stringify(result.rows), {
       status: 200,

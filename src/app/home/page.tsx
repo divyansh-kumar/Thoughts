@@ -103,7 +103,7 @@ function PostCard({ post }: { post: any }) {
       <div className="mb-2">
         <Link href={`/user/${post.user_id}`}>
           <button className="px-3 py-1 bg-green-500 text-white rounded hover:bg-green-600">
-            {post.user_id}
+            {post.name}
           </button>
         </Link>
         <h2 className="text-xl font-bold mb-3 text-gray-800 dark:text-white">
