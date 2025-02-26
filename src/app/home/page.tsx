@@ -6,13 +6,12 @@ import Link from "next/link";
 import TopBar from "@/components/TopBar";
 
 const API_BASE_URL = "http://localhost:3000/api";
-const IMAGE_BASE_URL =
-  "https://s3.us-east-005.backblazeb2.com/divyansh-testing";
+const IMAGE_BASE_URL = "https://s3.us-east-005.backblazeb2.com/divyansh-testing";
 
 export default function Home() {
   const [posts, setPosts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-
+  
   // Fetch posts on mount
   useEffect(() => {
     async function fetchPosts() {
@@ -25,6 +24,7 @@ export default function Home() {
         }
         const data = await res.json();
         setPosts(data);
+        console.log(data);
       } catch (error) {
         console.error(error);
       } finally {
@@ -96,93 +96,123 @@ function PostCard({ post }: { post: any }) {
   };
 
   return (
-    <main className="min-h-screen bg-gray-50 dark:bg-gray-900">
-    
-      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 hover:shadow-xl transition-shadow duration-300">
-        {/* Owner button above the title */}
-        <div className="mb-2">
-          <Link href={`/user/${post.user_id}`}>
-            <button className="px-3 py-1 bg-green-500 text-white rounded hover:bg-green-600">
-              {post.user_id}
-            </button>
-          </Link>
-        </div>
-
-        {/* Post Title */}
+    <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 hover:shadow-xl transition-shadow duration-300">
+      {/* Owner button and post details */}
+      <div className="mb-2">
+        <Link href={`/user/${post.user_id}`}>
+          <button className="px-3 py-1 bg-green-500 text-white rounded hover:bg-green-600">
+            {post.user_id}
+          </button>
+        </Link>
         <h2 className="text-xl font-bold mb-3 text-gray-800 dark:text-white">
           {post.title}
         </h2>
         <p className="text-gray-600 dark:text-gray-300 mb-4">
           {post.description}
         </p>
+      </div>
 
+      {/* Layout: image on left, comments on right */}
+      <div className="flex flex-row gap-6">
+        {/* Image Section */}
         {post.image_url && (
-          <div className="relative w-full mb-4 rounded-lg overflow-hidden h-screen flex items-center justify-center">
-            <Image
-              src={`${IMAGE_BASE_URL}${post.image_url}`}
-              alt={post.title}
-              width={400}
-              height={300}
-              className="rounded-lg object-cover"
-            />
+          <div className="w-1/2">
+            <div className="relative rounded-lg overflow-hidden">
+              <Image
+                src={`${IMAGE_BASE_URL}${post.image_url}`}
+                alt={post.title}
+                width={400}
+                height={300}
+                className="object-cover"
+              />
+            </div>
           </div>
         )}
 
-        <div className="text-sm text-gray-500 dark:text-gray-400 mb-4">
-          Posted on {new Date(post.created_at).toLocaleDateString()}
+        {/* Comments Section as a Table */}
+        <div className="w-1/2 flex flex-col justify-start">
+          <h3 className="font-semibold text-lg mb-2">Comments</h3>
+          <div className="overflow-x-auto">
+            <table className="min-w-full border border-gray-200 dark:border-gray-700">
+              <thead className="bg-gray-100 dark:bg-gray-700">
+                <tr>
+                  <th className="px-4 py-2 text-left text-sm font-medium text-gray-700 dark:text-gray-300">
+                    Comment
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="bg-white dark:bg-gray-800">
+                {comments.length > 0 ? (
+                  comments.map((comment: string, index: number) => (
+                    <tr key={index} className="border-t border-gray-200 dark:border-gray-700">
+                      <td className="px-4 py-2 text-sm text-gray-800 dark:text-gray-200">
+                        {comment}
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td className="px-4 py-2 text-sm text-gray-800 dark:text-gray-200">
+                      No comments yet.
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
         </div>
+      </div>
 
-        {/* Like and Comment Buttons */}
-        <div className="flex space-x-4">
-          <button
-            onClick={handleLike}
-            className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-          >
-            Like ({likes})
-          </button>
-          <button
-            onClick={() => setShowCommentPopup(true)}
-            className="px-4 py-2 bg-purple-500 text-white rounded hover:bg-purple-600"
-          >
-            Comment ({comments.length})
-          </button>
-        </div>
+      {/* Like/Comment Buttons */}
+      <div className="flex space-x-4 mt-6">
+        <button
+          onClick={handleLike}
+          className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+        >
+          Like ({likes})
+        </button>
+        <button
+          onClick={() => setShowCommentPopup(true)}
+          className="px-4 py-2 bg-purple-500 text-white rounded hover:bg-purple-600"
+        >
+          Comment ({comments.length})
+        </button>
+      </div>
 
-        {/* Comment Popup */}
-        {showCommentPopup && (
-          <>
-            <div className="fixed inset-0 flex items-center justify-center z-50">
-              <div className="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-lg z-10">
-                <h2 className="text-xl font-bold mb-4">Add Comment</h2>
-                <textarea
-                  value={commentText}
-                  onChange={(e) => setCommentText(e.target.value)}
-                  className="mb-4 w-full px-3 py-2 border rounded"
-                  placeholder="Type your comment here..."
-                ></textarea>
-                <div className="flex justify-end">
-                  <button
-                    onClick={() => setShowCommentPopup(false)}
-                    className="mr-2 px-4 py-2 bg-gray-300 rounded hover:bg-gray-400"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    onClick={handleCommentSubmit}
-                    className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-                  >
-                    Submit
-                  </button>
-                </div>
+      {/* Comment Popup */}
+      {showCommentPopup && (
+        <>
+          <div className="fixed inset-0 flex items-center justify-center z-50">
+            <div className="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-lg z-10">
+              <h2 className="text-xl font-bold mb-4">Add Comment</h2>
+              <textarea
+                value={commentText}
+                onChange={(e) => setCommentText(e.target.value)}
+                className="mb-4 w-full px-3 py-2 border rounded"
+                placeholder="Type your comment here..."
+              ></textarea>
+              <div className="flex justify-end">
+                <button
+                  onClick={() => setShowCommentPopup(false)}
+                  className="mr-2 px-4 py-2 bg-gray-300 rounded hover:bg-gray-400"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleCommentSubmit}
+                  className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+                >
+                  Submit
+                </button>
               </div>
             </div>
-            <div
-              className="fixed inset-0 bg-black opacity-50 z-40"
-              onClick={() => setShowCommentPopup(false)}
-            ></div>
-          </>
-        )}
-      </div>
-    </main>
+          </div>
+          <div
+            className="fixed inset-0 bg-black opacity-50 z-40"
+            onClick={() => setShowCommentPopup(false)}
+          ></div>
+        </>
+      )}
+    </div>
   );
 }
