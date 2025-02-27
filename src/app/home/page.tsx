@@ -8,6 +8,9 @@ import TopBar from "@/components/TopBar";
 const API_BASE_URL = "http://localhost:3000/api";
 const IMAGE_BASE_URL = "https://s3.us-east-005.backblazeb2.com/divyansh-testing";
 
+// For demonstration purposes, we hardcode a dummy current user id.
+// Replace this with your actual authenticated user's id.
+
 export default function Home() {
   const [posts, setPosts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -19,9 +22,7 @@ export default function Home() {
         const res = await fetch(`${API_BASE_URL}/get-post`, {
           cache: "no-store",
         });
-        if (!res.ok) {
-          throw new Error("Failed to fetch posts");
-        }
+        if (!res.ok) throw new Error("Failed to fetch posts");
         const data = await res.json();
         setPosts(data);
         console.log(data);
@@ -34,9 +35,7 @@ export default function Home() {
     fetchPosts();
   }, []);
 
-  if (loading) {
-    return <div className="container mx-auto p-4">Loading...</div>;
-  }
+  if (loading) return <div className="container mx-auto p-4">Loading...</div>;
 
   return (
     <main className="min-h-screen bg-gray-50 dark:bg-gray-900">
@@ -51,23 +50,27 @@ export default function Home() {
 }
 
 function PostCard({ post }: { post: any }) {
-  const [likes, setLikes] = useState(post.likes);
+  // Initialize likes as an array and set the liked state based on whether the current user id is in it.
+  const [likes, setLikes] = useState(post.likes || []);
+  const [liked, setLiked] = useState((post.likes || []).includes(localStorage.getItem("userID")));
   const [comments, setComments] = useState(post.comments || []);
   const [showCommentPopup, setShowCommentPopup] = useState(false);
   const [commentText, setCommentText] = useState("");
 
-  const handleLike = async () => {
+  const handleToggleLike = async () => {
     try {
       const res = await fetch(`${API_BASE_URL}/get-post`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ postId: post.id }),
+        body: JSON.stringify({ postId: post.id, userId: localStorage.getItem("userID") }),
       });
       if (res.ok) {
         const data = await res.json();
+        // data.likes is the updated array of user ids.
         setLikes(data.likes);
+        setLiked(data.likes.includes(localStorage.getItem("userID")));
       } else {
-        console.error("Failed to like post");
+        console.error("Failed to toggle like");
       }
     } catch (err) {
       console.error(err);
@@ -97,8 +100,6 @@ function PostCard({ post }: { post: any }) {
 
   return (
     <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 hover:shadow-xl transition-shadow duration-300">
-
-
       {/* Owner button and post details */}
       <div className="mb-2">
         <Link href={`/user/${post.user_id}`}>
@@ -114,7 +115,6 @@ function PostCard({ post }: { post: any }) {
         </p>
       </div>
 
-
       <div className="flex justify-between">
         <div>
           {/* Image Section */}
@@ -126,7 +126,6 @@ function PostCard({ post }: { post: any }) {
               height={300}
               className="object-cover"
             />
-
           )}
         </div>
         <div>
@@ -145,7 +144,10 @@ function PostCard({ post }: { post: any }) {
                 <tbody className="bg-white dark:bg-gray-800">
                   {comments.length > 0 ? (
                     comments.map((comment: string, index: number) => (
-                      <tr key={index} className="border-t border-gray-200 dark:border-gray-700">
+                      <tr
+                        key={index}
+                        className="border-t border-gray-200 dark:border-gray-700"
+                      >
                         <td className="px-4 py-2 text-sm text-gray-800 dark:text-gray-200">
                           {comment}
                         </td>
@@ -158,6 +160,16 @@ function PostCard({ post }: { post: any }) {
                       </td>
                     </tr>
                   )}
+                  <tr>
+                    <td className="px-4 py-2">
+                      <button
+                        onClick={() => setShowCommentPopup(true)}
+                        className="px-8 py-2 bg-purple-500 text-white rounded hover:bg-purple-600"
+                      >
+                        Comment ({comments.length})
+                      </button>
+                    </td>
+                  </tr>
                 </tbody>
               </table>
             </div>
@@ -165,22 +177,20 @@ function PostCard({ post }: { post: any }) {
         </div>
       </div>
 
-
-
-      {/* Like/Comment Buttons */}
-      <div className="flex space-x-4 mt-6">
-        <button
-          onClick={handleLike}
-          className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+      {/* Like Button with Toggle Heart Image */}
+      <div className="flex space-x-4 mt-4">
+        <div
+          className="flex items-center space-x-2 cursor-pointer"
+          onClick={handleToggleLike}
         >
-          Like ({likes})
-        </button>
-        <button
-          onClick={() => setShowCommentPopup(true)}
-          className="px-4 py-2 bg-purple-500 text-white rounded hover:bg-purple-600"
-        >
-          Comment ({comments.length})
-        </button>
+          <Image
+            src={liked ? "/heartred.png" : "/heart.png"}
+            alt="Like Button"
+            width={32}
+            height={32}
+          />
+          <span>{likes.length}</span>
+        </div>
       </div>
 
       {/* Comment Popup */}

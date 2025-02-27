@@ -17,9 +17,7 @@ export async function GET() {
       JOIN users ON posts.user_id = users.uid
       ORDER BY posts.created_at DESC
     `);
-    
-    console.log(result.rows);
-    
+        
     return new Response(JSON.stringify(result.rows), {
       status: 200,
       headers: {
@@ -30,9 +28,7 @@ export async function GET() {
     console.error(error);
     return new Response(JSON.stringify({ error: 'Database error' }), {
       status: 500,
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers: { 'Content-Type': 'application/json' },
     });
   }
 }
@@ -40,7 +36,7 @@ export async function GET() {
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { postId, comment } = body;
+    const { postId, comment, userId } = body;
 
     if (comment) {
       // Append comment to the comments array
@@ -58,11 +54,17 @@ export async function POST(request: Request) {
         status: 200,
         headers: { "Content-Type": "application/json" },
       });
-    } else {
-      // Increment likes by 1
+    } else if (userId) {
+      // Toggle like: if userId exists in likes array, remove it; otherwise, append it.
       const result = await query(
-        `UPDATE posts SET likes = likes + 1 WHERE id = $1 RETURNING likes;`,
-        [postId]
+        `UPDATE posts 
+         SET likes = CASE 
+                      WHEN $1 = ANY(likes) THEN array_remove(likes, $1)
+                      ELSE array_append(likes, $1)
+                    END
+         WHERE id = $2 
+         RETURNING likes;`,
+         [userId, postId]
       );
       if (result.rowCount === 0) {
         return new Response(JSON.stringify({ error: 'Post not found' }), {
@@ -72,6 +74,11 @@ export async function POST(request: Request) {
       }
       return new Response(JSON.stringify(result.rows[0]), {
         status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
+    } else {
+      return new Response(JSON.stringify({ error: "Invalid request" }), {
+        status: 400,
         headers: { "Content-Type": "application/json" },
       });
     }
