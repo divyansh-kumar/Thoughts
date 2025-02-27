@@ -7,21 +7,19 @@ export default function TopBar() {
         <h1 className="text-2xl font-bold text-gray-800 dark:text-white">
           Public Posts
         </h1>
-        <div className="flex space-x-4">
+        <div className="flex space-x-4 items-center">
           <Link
             href="/create"
             className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-colors"
           >
             Create Post
           </Link>
-          <Link
-            href="/login"
-            className="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg transition-colors"
-          >
-            Login
-          </Link>
-        </div>
+          
+          </div>
       </div>
     </div>
   );
 }
+
+
+

@@ -103,7 +103,7 @@ function PostCard({ post }: { post: any }) {
       {/* Owner button and post details */}
       <div className="mb-2">
         <Link href={`/user/${post.user_id}`}>
-          <button className="px-3 py-1 bg-green-500 text-white rounded hover:bg-green-600">
+          <button className="px-3 py-1  text-white rounded">
             {post.name}
           </button>
         </Link>
@@ -124,7 +124,7 @@ function PostCard({ post }: { post: any }) {
               alt={post.title}
               width={800}
               height={300}
-              className="object-cover"
+              className="object-cover rounded-lg"
             />
           )}
         </div>
@@ -180,7 +180,7 @@ function PostCard({ post }: { post: any }) {
       {/* Like Button with Toggle Heart Image */}
       <div className="flex space-x-4 mt-4">
         <div
-          className="flex items-center space-x-2 cursor-pointer"
+          className="flex items-center space-x-4 cursor-pointer" // Updated class here
           onClick={handleToggleLike}
         >
           <Image
@@ -192,6 +192,7 @@ function PostCard({ post }: { post: any }) {
           <span>{likes.length}</span>
         </div>
       </div>
+
 
       {/* Comment Popup */}
       {showCommentPopup && (
