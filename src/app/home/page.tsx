@@ -98,114 +98,117 @@ function PostCard({ post }: { post: any }) {
     }
   };
 
-  return (
-    <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 hover:shadow-xl transition-shadow duration-300">
-      {/* Owner button and post details */}
-      <div className="mb-2">
-        <Link href={`/user/${post.user_id}`}>
-          <button className="px-3 py-1  text-white rounded">
-            {post.name}
-          </button>
-        </Link>
-        <h2 className="text-xl font-bold mb-3 text-gray-800 dark:text-white">
-          {post.title}
-        </h2>
-        <p className="text-gray-600 dark:text-gray-300 mb-4">
-          {post.description}
-        </p>
-      </div>
 
-      <div className="flex justify-between">
-        <div>
-          {/* Image Section */}
-          {post.image_url && (
-            <Image
+  return (
+
+    <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 hover:shadow-xl transition-shadow duration-300">      {/* Main Grid Container */}
+      <div className="grid w-full dark:bg-gray-800 rounded-t-none overflow-hidden flex-1 p-4 md:p-2
+        grid-cols-1 md:grid-cols-6
+        grid-rows-[auto_auto_auto_repeat(6,1fr)_auto_auto_auto_auto]
+        gap-2">
+
+        <div className="col-span-1 md:col-span-5 row-start-1">
+          <a href={`/user/${post.user_id}`} className="text-white font-[sourcesanspro] text-1xl md:text-3xl">
+            {post.name}
+          </a>
+        </div>
+
+        <div className="col-span-1 md:col-span-5 row-start-2">
+          <h2 className="text-white font-[sourcesanspro] text-2xl md:text-4xl">
+            {post.title}
+          </h2>
+        </div>
+
+        {/* Comments Header - Row 3 on small screens, Row 2 on md+ */}
+        <div className="col-start-1 md:col-start-7 row-start-3 md:row-start-1">
+          <h3 className="text-white font-[sourcesanspro] text-2xl md:text-4xl">
+            Comments
+          </h3>
+        </div>
+
+        {/* Content - Row 4 on small screens, Row 3 on md+ */}
+        <div className="col-span-1 md:col-span-5 row-start-4 md:row-start-3">
+          <p className="text-white font-[sourcesanspro] text-lg md:text-xl">
+            {post.description}
+          </p>
+        </div>
+
+        {/* Image - Rows 5-12 */}
+        {post.image_url && (
+          <div className="col-span-1 md:col-span-5 row-start-5 md:row-start-4 row-end-13 m-4 md:m-12 justify-self-center">
+            <img
               src={`${IMAGE_BASE_URL}${post.image_url}`}
               alt={post.title}
-              width={800}
-              height={300}
-              className="object-cover rounded-lg"
+              className="w-full h-full object-cover rounded-3xl"
             />
-          )}
+          </div>
+        )}
+
+        {/* Comments Section - Rows 6-12 on small screens, Rows 3-12 on md+ */}
+        <div className="col-span-1 md:col-start-6 md:col-end-13 rounded-xl row-start-6 md:row-start-2 row-end-13 m-4 md:m-5 bg-[#B1B2B5] p-4">
+          <table className="w-full border border-gray-200">
+            <thead className="bg-gray-100">
+              <tr>
+                <th className="px-2 md:px-4 py-2 text-left text-sm text-gray-700">Comment</th>
+              </tr>
+            </thead>
+            <tbody>
+              {comments.length > 0 ? (
+                comments.map((comment: string, index: number) => (
+                  <tr key={index} className="border-t border-gray-200">
+                    <td className="px-2 md:px-4 py-2 text-sm text-gray-800">{comment}</td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td className="px-2 md:px-4 py-2 text-sm text-gray-800">
+                    This post doesn't have any comments yet.
+                  </td>
+                </tr>
+              )}
+              <tr>
+                <td className="px-2 md:px-4 py-2">
+                  <button
+                    onClick={() => setShowCommentPopup(true)}
+                    className="px-4 md:px-8 py-2 bg-purple-500 text-white rounded hover:bg-purple-600"
+                  >
+                    Comment
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
         </div>
-        <div>
-          {/* Comments Section as a Table */}
-          <div className="justify-start">
-            <h3 className="font-semibold text-lg mb-2">Comments</h3>
-            <div>
-              <table className="min-w-full border border-gray-200 dark:border-gray-700">
-                <thead className="bg-gray-100 dark:bg-gray-700">
-                  <tr>
-                    <th className="px-4 py-2 text-left text-sm font-medium text-gray-700 dark:text-gray-300">
-                      Comment
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="bg-white dark:bg-gray-800">
-                  {comments.length > 0 ? (
-                    comments.map((comment: string, index: number) => (
-                      <tr
-                        key={index}
-                        className="border-t border-gray-200 dark:border-gray-700"
-                      >
-                        <td className="px-4 py-2 text-sm text-gray-800 dark:text-gray-200">
-                          {comment}
-                        </td>
-                      </tr>
-                    ))
-                  ) : (
-                    <tr>
-                      <td className="px-4 py-2 text-sm text-gray-800 dark:text-gray-200">
-                        No comments yet.
-                      </td>
-                    </tr>
-                  )}
-                  <tr>
-                    <td className="px-4 py-2">
-                      <button
-                        onClick={() => setShowCommentPopup(true)}
-                        className="px-8 py-2 bg-purple-500 text-white rounded hover:bg-purple-600"
-                      >
-                        Comment ({comments.length})
-                      </button>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
+
+        {/* Bottom Right Rectangle - Row 14 on small screens, Row 13 on md+ */}
+        <div className="col-span-1 md:col-start-6 md:col-end-9 row-start-14 md:row-start-13 m-4 md:m-[10px_20px] bg-[#B1B2B5]" />
+
+        {/* Like Button - Row 15 on small screens, Row 13 on md+ */}
+        <div className="col-span-1 md:col-span-1 row-start-15 md:row-start-13 flex items-center space-x-4">
+          <div className="flex items-center space-x-2 cursor-pointer" onClick={handleToggleLike}>
+            <img
+              src={liked ? "/heartred.png" : "/heart.png"}
+              alt="Like Button"
+              width={32}
+              height={32}
+            />
+            <span>{likes.length}</span>
           </div>
         </div>
       </div>
-
-      {/* Like Button with Toggle Heart Image */}
-      <div className="flex space-x-4 mt-4">
-        <div
-          className="flex items-center space-x-4 cursor-pointer" // Updated class here
-          onClick={handleToggleLike}
-        >
-          <Image
-            src={liked ? "/heartred.png" : "/heart.png"}
-            alt="Like Button"
-            width={32}
-            height={32}
-          />
-          <span>{likes.length}</span>
-        </div>
-      </div>
-
 
       {/* Comment Popup */}
       {showCommentPopup && (
         <>
           <div className="fixed inset-0 flex items-center justify-center z-50">
-            <div className="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-lg z-10">
+            <div className="bg-white p-4 md:p-6 rounded-2xl shadow-lg z-10">
               <h2 className="text-xl font-bold mb-4">Add Comment</h2>
               <textarea
                 value={commentText}
                 onChange={(e) => setCommentText(e.target.value)}
-                className="mb-4 w-full px-3 py-2 border rounded"
+                className="mb-4 w-full px-3 py-2 border rounded text-white"
                 placeholder="Type your comment here..."
-              ></textarea>
+              />
               <div className="flex justify-end">
                 <button
                   onClick={() => setShowCommentPopup(false)}
@@ -223,9 +226,9 @@ function PostCard({ post }: { post: any }) {
             </div>
           </div>
           <div
-            className="fixed inset-0 bg-black opacity-50 z-40"
+            className="fixed inset-0 bg-white opacity-50 z-40"
             onClick={() => setShowCommentPopup(false)}
-          ></div>
+          />
         </>
       )}
     </div>
