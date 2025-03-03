@@ -12,7 +12,8 @@ export async function GET() {
         users.name, 
         posts.likes, 
         posts.comments, 
-        posts.created_at 
+        posts.created_at,
+        posts.tags
       FROM posts
       JOIN users ON posts.user_id = users.uid
       ORDER BY posts.created_at DESC

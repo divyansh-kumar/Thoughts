@@ -1,14 +1,98 @@
-// app/create/page.tsx
 'use client';
 
 import { useState, useCallback, useEffect } from "react";
 import { useRouter } from "next/navigation";
+
+function TagInput({ tags, onTagsChange }: { tags: string[]; onTagsChange: (tags: string[]) => void }) {
+  const [inputValue, setInputValue] = useState("");
+  const [error, setError] = useState("");
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (["Enter", " "].includes(e.key)) {
+      e.preventDefault();
+      const newTags = inputValue
+        .split(/[\s,]+/)
+        .map(tag => tag.trim())
+        .filter(tag => tag !== "");
+
+      if (newTags.length === 0) return;
+
+      const updatedTags = [...tags];
+      let errorMessage = "";
+
+      for (const tag of newTags) {
+        if (updatedTags.length >= 5) {
+          errorMessage = "Maximum 5 tags allowed";
+          break;
+        }
+        if (!updatedTags.includes(tag)) {
+          updatedTags.push(tag);
+        }
+      }
+
+      if (errorMessage) {
+        setError(errorMessage);
+      } else {
+        setError("");
+        onTagsChange(updatedTags);
+        setInputValue("");
+      }
+    }
+  };
+
+  const removeTag = (index: number) => {
+    const newTags = tags.filter((_, i) => i !== index);
+    onTagsChange(newTags);
+    setError("");
+  };
+
+  return (
+    <div className="w-full">
+      <label className="block text-sm text-gray-700 dark:text-gray-200 mb-2">
+        Tags (separate with space)
+      </label>
+      
+      <div className="flex flex-wrap items-center border border-gray-300 rounded-md p-2 dark:border-gray-600">
+        <div className="flex flex-wrap items-center gap-2">
+          {tags.map((tag, index) => (
+            <div
+              key={index}
+              className="flex items-center bg-blue-100 text-blue-700 px-2 py-1 rounded-full text-sm dark:bg-blue-900 dark:text-blue-300"
+            >
+              <span>{tag}</span>
+              <button
+                type="button"
+                className="ml-2 text-blue-500 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-200"
+                onClick={() => removeTag(index)}
+              >
+                &times;
+              </button>
+            </div>
+          ))}
+        </div>
+        <input
+          type="text"
+          value={inputValue}
+          onChange={(e) => setInputValue(e.target.value)}
+          onKeyDown={handleKeyDown}
+          placeholder="Add tags..."
+          className="flex-1 border-none outline-none focus:ring-0 bg-transparent dark:text-gray-200 min-w-[120px]"
+        />
+      </div>
+      
+      {error && (
+        <p className="mt-2 text-sm text-red-500 dark:text-red-400">{error}</p>
+      )}
+    </div>
+  );
+}
 
 export default function CreatePost() {
   const [formData, setFormData] = useState({
     title: "",
     description: "",
     image: null as File | null,
+    tags: [] as string[],
   });
   const [isDragging, setIsDragging] = useState(false);
   const [uid, setUid] = useState<string | null>(null);
@@ -53,6 +137,7 @@ export default function CreatePost() {
           description: formData.description,
           imageUrl,
           userId: uid,
+          tags: formData.tags,
         }),
       });
       if (!postResponse.ok) {
@@ -157,6 +242,12 @@ export default function CreatePost() {
                 setFormData((prev) => ({ ...prev, description: e.target.value }))
               }
               className="block w-full px-4 py-2 mt-1 text-gray-700 bg-white border border-gray-200 rounded-md dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600 focus:border-blue-400 focus:ring-blue-300 focus:ring-opacity-40 dark:focus:border-blue-300 focus:outline-none focus:ring h-32"
+            />
+          </div>
+          <div>
+            <TagInput 
+              tags={formData.tags} 
+              onTagsChange={(newTags) => setFormData(prev => ({ ...prev, tags: newTags }))} 
             />
           </div>
           <div className="flex justify-end">

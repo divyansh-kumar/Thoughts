@@ -1,6 +1,15 @@
 import Link from "next/link";
 
-export default function TopBar() {
+interface TopBarProps {
+  searchQuery: string;
+  setSearchQuery: (query: string) => void;
+}
+
+export default function TopBar({ searchQuery, setSearchQuery }: TopBarProps) {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchQuery(e.target.value);
+  };
+
   return (
     <div className="w-full bg-white dark:bg-gray-900 shadow-sm">
       <div className="container mx-auto px-4 py-4 flex justify-between items-center">
@@ -8,18 +17,21 @@ export default function TopBar() {
           Public Posts
         </h1>
         <div className="flex space-x-4 items-center">
+          <input
+            type="text"
+            placeholder="Search tags..."
+            value={searchQuery}
+            onChange={handleInputChange}
+            className="px-4 py-2 border rounded-lg focus:outline-none focus:ring focus:border-blue-300"
+          />
           <Link
             href="/create"
             className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-colors"
           >
             Create Post
           </Link>
-          
-          </div>
+        </div>
       </div>
     </div>
   );
 }
-
-
-

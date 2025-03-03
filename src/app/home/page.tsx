@@ -1,19 +1,16 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import Image from "next/image";
-import Link from "next/link";
 import TopBar from "@/components/TopBar";
 
 const API_BASE_URL = "http://localhost:3000/api";
-const IMAGE_BASE_URL = "https://s3.us-east-005.backblazeb2.com/divyansh-testing";
-
-// For demonstration purposes, we hardcode a dummy current user id.
-// Replace this with your actual authenticated user's id.
+const IMAGE_BASE_URL =
+  "https://s3.us-east-005.backblazeb2.com/divyansh-testing";
 
 export default function Home() {
   const [posts, setPosts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState("");
 
   // Fetch posts on mount
   useEffect(() => {
@@ -25,7 +22,6 @@ export default function Home() {
         if (!res.ok) throw new Error("Failed to fetch posts");
         const data = await res.json();
         setPosts(data);
-        console.log(data);
       } catch (error) {
         console.error(error);
       } finally {
@@ -35,24 +31,58 @@ export default function Home() {
     fetchPosts();
   }, []);
 
-  if (loading) return <div className="container mx-auto p-4">Loading...</div>;
+  // Debug: log search query whenever it changes
+  useEffect(() => {
+    console.log("searchQuery:", searchQuery);
+  }, [searchQuery]);
+
+  // Filter posts by tag (case-insensitive)
+  const filteredPosts = searchQuery.trim()
+    ? posts.filter((post) => {
+        if (!post.tags) return false;
+        // If tags are in string format, convert them to an array
+        const tagsArray =
+          typeof post.tags === "string"
+            ? post.tags.replace(/[{}]/g, "").split(",")
+            : post.tags;
+        return tagsArray.some((tag: string) =>
+          tag.trim().toLowerCase().includes(searchQuery.trim().toLowerCase())
+        );
+      })
+    : posts;
+
+  // Debug: log the filtered posts
+  useEffect(() => {
+    console.log("filteredPosts:", filteredPosts);
+  }, [filteredPosts]);
+
+  if (loading)
+    return <div className="container mx-auto p-4">Loading...</div>;
 
   return (
     <main className="min-h-screen bg-gray-50 dark:bg-gray-900">
-      <TopBar />
+      {/* Pass searchQuery and its setter to TopBar */}
+      <TopBar searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
       <div className="container mx-auto px-4 py-8 space-y-8">
-        {posts.map((post) => (
-          <PostCard key={post.id} post={post} />
-        ))}
+        {filteredPosts.length > 0 ? (
+          filteredPosts.map((post) => (
+            <PostCard key={post.id} post={post} />
+          ))
+        ) : (
+          <p className="text-center text-xl text-gray-700 dark:text-gray-200">
+            No posts found for tag &ldquo;{searchQuery}&rdquo;
+          </p>
+        )}
       </div>
     </main>
   );
 }
 
 function PostCard({ post }: { post: any }) {
-  // Initialize likes as an array and set the liked state based on whether the current user id is in it.
   const [likes, setLikes] = useState(post.likes || []);
-  const [liked, setLiked] = useState((post.likes || []).includes(localStorage.getItem("userID")));
+  const [liked, setLiked] = useState(
+    (post.likes || []).includes(localStorage.getItem("userID"))
+  );
   const [comments, setComments] = useState(post.comments || []);
   const [showCommentPopup, setShowCommentPopup] = useState(false);
   const [commentText, setCommentText] = useState("");
@@ -62,11 +92,13 @@ function PostCard({ post }: { post: any }) {
       const res = await fetch(`${API_BASE_URL}/get-post`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ postId: post.id, userId: localStorage.getItem("userID") }),
+        body: JSON.stringify({
+          postId: post.id,
+          userId: localStorage.getItem("userID"),
+        }),
       });
       if (res.ok) {
         const data = await res.json();
-        // data.likes is the updated array of user ids.
         setLikes(data.likes);
         setLiked(data.likes.includes(localStorage.getItem("userID")));
       } else {
@@ -98,17 +130,19 @@ function PostCard({ post }: { post: any }) {
     }
   };
 
-
   return (
-
-    <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 hover:shadow-xl transition-shadow duration-300">      {/* Main Grid Container */}
-      <div className="grid w-full dark:bg-gray-800 rounded-t-none overflow-hidden flex-1 p-4 md:p-2
-        grid-cols-1 md:grid-cols-6
-        grid-rows-[auto_auto_auto_repeat(6,1fr)_auto_auto_auto_auto]
-        gap-2">
-
+    <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 hover:shadow-xl transition-shadow duration-300">
+      <div
+        className="grid w-full dark:bg-gray-800 rounded-t-none overflow-hidden flex-1 p-4 md:p-2
+          grid-cols-1 md:grid-cols-6
+          grid-rows-[auto_auto_auto_repeat(6,1fr)_auto_auto_auto-auto]
+          gap-2"
+      >
         <div className="col-span-1 md:col-span-5 row-start-1">
-          <a href={`/user/${post.user_id}`} className="text-white font-[sourcesanspro] text-1xl md:text-3xl">
+          <a
+            href={`/user/${post.user_id}`}
+            className="text-white font-[sourcesanspro] text-1xl md:text-3xl"
+          >
             {post.name}
           </a>
         </div>
@@ -119,21 +153,18 @@ function PostCard({ post }: { post: any }) {
           </h2>
         </div>
 
-        {/* Comments Header - Row 3 on small screens, Row 2 on md+ */}
         <div className="col-start-1 md:col-start-7 row-start-3 md:row-start-1">
           <h3 className="text-white font-[sourcesanspro] text-2xl md:text-4xl">
             Comments
           </h3>
         </div>
 
-        {/* Content - Row 4 on small screens, Row 3 on md+ */}
         <div className="col-span-1 md:col-span-5 row-start-4 md:row-start-3">
           <p className="text-white font-[sourcesanspro] text-lg md:text-xl">
             {post.description}
           </p>
         </div>
 
-        {/* Image - Rows 5-12 */}
         {post.image_url && (
           <div className="col-span-1 md:col-span-5 row-start-5 md:row-start-4 row-end-13 m-4 md:m-12 justify-self-center">
             <img
@@ -144,19 +175,22 @@ function PostCard({ post }: { post: any }) {
           </div>
         )}
 
-        {/* Comments Section - Rows 6-12 on small screens, Rows 3-12 on md+ */}
         <div className="col-span-1 md:col-start-6 md:col-end-13 rounded-xl row-start-6 md:row-start-2 row-end-13 m-4 md:m-5 bg-[#B1B2B5] p-4">
           <table className="w-full border border-gray-200">
             <thead className="bg-gray-100">
               <tr>
-                <th className="px-2 md:px-4 py-2 text-left text-sm text-gray-700">Comment</th>
+                <th className="px-2 md:px-4 py-2 text-left text-sm text-gray-700">
+                  Comment
+                </th>
               </tr>
             </thead>
             <tbody>
-              {comments.length > 0 ? (
+              {comments && comments.length > 0 ? (
                 comments.map((comment: string, index: number) => (
                   <tr key={index} className="border-t border-gray-200">
-                    <td className="px-2 md:px-4 py-2 text-sm text-gray-800">{comment}</td>
+                    <td className="px-2 md:px-4 py-2 text-sm text-gray-800">
+                      {comment}
+                    </td>
                   </tr>
                 ))
               ) : (
@@ -180,24 +214,24 @@ function PostCard({ post }: { post: any }) {
           </table>
         </div>
 
-        {/* Bottom Right Rectangle - Row 14 on small screens, Row 13 on md+ */}
         <div className="col-span-1 md:col-start-6 md:col-end-9 row-start-14 md:row-start-13 m-4 md:m-[10px_20px] bg-[#B1B2B5]" />
 
-        {/* Like Button - Row 15 on small screens, Row 13 on md+ */}
         <div className="col-span-1 md:col-span-1 row-start-15 md:row-start-13 flex items-center space-x-4">
-          <div className="flex items-center space-x-2 cursor-pointer" onClick={handleToggleLike}>
+          <div
+            className="flex items-center space-x-2 cursor-pointer"
+            onClick={handleToggleLike}
+          >
             <img
               src={liked ? "/heartred.png" : "/heart.png"}
               alt="Like Button"
               width={32}
               height={32}
             />
-            <span>{likes.length}</span>
+            <span>{likes ? likes.length : 0}</span>
           </div>
         </div>
       </div>
 
-      {/* Comment Popup */}
       {showCommentPopup && (
         <>
           <div className="fixed inset-0 flex items-center justify-center z-50">
