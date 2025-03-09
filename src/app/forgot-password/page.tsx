@@ -6,31 +6,31 @@ import { supabase } from '../../utils/supabase';
 
 const ForgotPassword = () => {
   const [email, setEmail] = useState("");
-  const [loading, setLoading] = useState(false); // To handle loading state
-  const [error, setError] = useState(""); // To display error messages
+  const [loading, setLoading] = useState(false); 
+  const [error, setError] = useState(""); 
   const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setLoading(true); // Start loading
-    setError(""); // Clear previous errors
+    setLoading(true); 
+    setError(""); 
 
     try {
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: "http://localhost:3000/change-password", // URL to redirect after clicking the reset link
+        redirectTo: "http://localhost:3000/change-password", 
       });
 
       if (error) {
-        setError(error.message); // Display error if something goes wrong
+        setError(error.message); 
       } else {
         alert("Password reset link sent! Check your email.");
-        router.push("/login"); // Redirect to login page after success
+        router.push("/login"); 
       }
     } catch (err) {
       setError("An error occurred. Please try again later.");
       console.error("Error sending reset link:", err);
     } finally {
-      setLoading(false); // Stop loading
+      setLoading(false); 
     }
   };
 

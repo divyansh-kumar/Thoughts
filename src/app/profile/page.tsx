@@ -49,6 +49,15 @@ export default function ProfilePage() {
         >
           Reset Password
         </button>
+        <a href="/logout">
+        <button
+          onClick={() => setShowResetPopup(true)}
+          className="mt-4 m-4 px-4 py-2 bg-blue-500 text-white rounded"
+        >
+          Logout
+        </button>
+        </a>
+        
       </div>
 
       {showResetPopup && (
