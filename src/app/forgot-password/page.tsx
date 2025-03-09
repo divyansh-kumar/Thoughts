@@ -1,10 +1,11 @@
 "use client";
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
+import { supabase } from '../../utils/supabase';
 
-const Login = () => {
+
+const ForgotPassword = () => {
   const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false); // To handle loading state
   const [error, setError] = useState(""); // To display error messages
   const router = useRouter();
@@ -12,36 +13,26 @@ const Login = () => {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true); // Start loading
-  
+    setError(""); // Clear previous errors
+
     try {
-      // Send credentials to the API for validation
-      const response = await fetch("/api/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email, password }),
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: "http://localhost:3000/change-password", // URL to redirect after clicking the reset link
       });
-  
-      const data = await response.json();
-  
-      if (response.ok) {
-        // Successfully logged in
-        sessionStorage.setItem("userID", data.userID);
-        sessionStorage.setItem("email", email);
-        router.push("/home");
+
+      if (error) {
+        setError(error.message); // Display error if something goes wrong
       } else {
-        setError(data.error || "Login failed");
+        alert("Password reset link sent! Check your email.");
+        router.push("/login"); // Redirect to login page after success
       }
     } catch (err) {
       setError("An error occurred. Please try again later.");
-      console.error("Error during login:", err);
+      console.error("Error sending reset link:", err);
     } finally {
       setLoading(false); // Stop loading
     }
   };
-  
-
 
   return (
     <div className="flex min-h-screen flex-col justify-center px-6 py-12 bg-white dark:bg-gray-900">
@@ -55,8 +46,11 @@ const Login = () => {
 
           <form className="space-y-5" onSubmit={handleSubmit}>
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-900 dark:text-gray-200">
-                Email
+              <label
+                htmlFor="email"
+                className="block text-sm font-medium text-gray-900 dark:text-gray-200"
+              >
+                Enter Your Email
               </label>
               <input
                 type="email"
@@ -69,42 +63,24 @@ const Login = () => {
               />
             </div>
 
-            <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-900 dark:text-gray-200">
-                Password
-              </label>
-              <input
-                type="password"
-                id="password"
-                placeholder="Password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                className="mt-3 w-full rounded-md bg-white dark:bg-gray-800 px-5 py-3 text-base text-gray-900 dark:text-white outline outline-1 outline-gray-300 dark:outline-gray-700 placeholder-gray-400 focus:outline-indigo-600 sm:text-sm"
-              />
-            </div>
-
-            {/* Sign Up Button */}
-            <button type="submit" className="w-full rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus:outline-indigo-600">
-              Sign In
+            <button
+              type="submit"
+              disabled={loading} // Disable button while loading
+              className="w-full rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus:outline-indigo-600 disabled:bg-indigo-400"
+            >
+              {loading ? "Sending..." : "Send Link"}
             </button>
           </form>
-
         </div>
       </div>
-      {/* Already have an account? */}
       <p className="mt-10 text-center text-sm text-gray-600 dark:text-gray-300">
-        Don't have an account?{" "}
-        <a href="/register" className="text-indigo-600 hover:underline">
-          Register
+        Move to Login{" "}
+        <a href="/login" className="text-indigo-600 hover:underline">
+          Login
         </a>
       </p>
     </div>
   );
+};
 
-}
-
-export default Login;
-
-
-//forgot password not working and remember me too
+export default ForgotPassword;
