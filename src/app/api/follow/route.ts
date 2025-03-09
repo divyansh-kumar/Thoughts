@@ -28,7 +28,7 @@ export async function POST(req: NextRequest) {
         INSERT INTO follows (user_id, following_id)
         VALUES ($1, ARRAY[$2]::uuid[])
         ON CONFLICT (user_id) DO UPDATE
-          SET followers_id = COALESCE(follows.following_id, '{}') || $2
+          SET following_id = COALESCE(follows.following_id, '{}') || $2
         `,
         [followingId, followerId]
       );

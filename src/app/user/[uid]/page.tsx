@@ -13,13 +13,19 @@ export default function UserProfilePage() {
     const storedUid = sessionStorage.getItem("userID");
     setCurrentUid(storedUid);
 
-    // Fetch the user's details
-    fetch(`/api/user-details?uid=${uid}`)
+    // Fetch user details, including follow status
+    fetch(`/api/user-details?uid=${uid}${storedUid ? `&currentUid=${storedUid}` : ""}`)
       .then((res) => res.json())
-      .then((data) => {setUserData(data)})
-      .catch((err) => console.error(err));
+      .then((data) => {
+        if (data.error) {
+          console.error(data.error);
+          return;
+        }
+        setUserData(data);
+        setIsFollowing(data.followingCount); // Set follow status from API
+      })
+      .catch((err) => console.error("Fetch error:", err));
   }, [uid]);
-
 
   if (!userData) {
     return <div className="container mx-auto p-4">Loading...</div>;
@@ -27,6 +33,7 @@ export default function UserProfilePage() {
 
   const handleFollowToggle = async () => {
     if (!currentUid) return;
+
     const action = isFollowing ? "unfollow" : "follow";
     try {
       const res = await fetch(`/api/follow`, {
@@ -35,10 +42,12 @@ export default function UserProfilePage() {
         body: JSON.stringify({ followerId: currentUid, followingId: uid, action }),
       });
       if (res.ok) {
-        setIsFollowing(!isFollowing);
+        setIsFollowing(!isFollowing); // Toggle state on success
+      } else {
+        console.error("Follow action failed");
       }
     } catch (err) {
-      console.error(err);
+      console.error("Error toggling follow:", err);
     }
   };
 
