@@ -99,7 +99,7 @@ export default function CreatePost() {
   const router = useRouter();
 
   useEffect(() => {
-    const storedUid = localStorage.getItem("userID");
+    const storedUid = sessionStorage.getItem("userID");
     setUid(storedUid);
   }, []);
 

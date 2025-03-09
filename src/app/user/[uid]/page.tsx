@@ -10,7 +10,7 @@ export default function UserProfilePage() {
   const [currentUid, setCurrentUid] = useState<string | null>(null);
 
   useEffect(() => {
-    const storedUid = localStorage.getItem("userID");
+    const storedUid = sessionStorage.getItem("userID");
     setCurrentUid(storedUid);
 
     // Fetch the user's details

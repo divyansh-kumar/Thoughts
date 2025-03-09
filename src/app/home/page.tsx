@@ -137,7 +137,7 @@ const handleSendEmail = async (post) => {
 function PostCard({ post }: { post: any }) {
   const [likes, setLikes] = useState(post.likes || []);
   const [liked, setLiked] = useState(
-    (post.likes || []).includes(localStorage.getItem("userID"))
+    (post.likes || []).includes(sessionStorage.getItem("userID"))
   );
   const [comments, setComments] = useState(post.comments || []);
   const [showCommentPopup, setShowCommentPopup] = useState(false);
@@ -150,13 +150,13 @@ function PostCard({ post }: { post: any }) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           postId: post.id,
-          userId: localStorage.getItem("userID"),
+          userId: sessionStorage.getItem("userID"),
         }),
       });
       if (res.ok) {
         const data = await res.json();
         setLikes(data.likes);
-        setLiked(data.likes.includes(localStorage.getItem("userID")));
+        setLiked(data.likes.includes(sessionStorage.getItem("userID")));
       } else {
         console.error("Failed to toggle like");
       }

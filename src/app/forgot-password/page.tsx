@@ -5,51 +5,49 @@ import { useRouter } from "next/navigation";
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [rememberMe, setRememberMe] = useState(false); // Added for "Remember Me"
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false); // To handle loading state
+  const [error, setError] = useState(""); // To display error messages
   const router = useRouter();
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setLoading(true);
-
+    setLoading(true); // Start loading
+  
     try {
+      // Send credentials to the API for validation
       const response = await fetch("/api/login", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+        },
         body: JSON.stringify({ email, password }),
       });
-
+  
       const data = await response.json();
-
+  
       if (response.ok) {
-        // Always store userID in sessionStorage
-        sessionStorage.setItem("email", email); // Optional, if you need email
+        // Successfully logged in
         sessionStorage.setItem("userID", data.userID);
-
-        // If "Remember Me" is checked, store in localStorage too
-        if (rememberMe) {
-          localStorage.setItem("userID", data.userID);
-          localStorage.setItem("email", email); // Optional, if you need email
-        }
+        sessionStorage.setItem("email", email);
         router.push("/home");
       } else {
         setError(data.error || "Login failed");
       }
     } catch (err) {
-      setError("An error occurred. Please try again.");
-      console.error("Login error:", err);
+      setError("An error occurred. Please try again later.");
+      console.error("Error during login:", err);
     } finally {
-      setLoading(false);
+      setLoading(false); // Stop loading
     }
   };
+  
+
 
   return (
     <div className="flex min-h-screen flex-col justify-center px-6 py-12 bg-white dark:bg-gray-900">
       <div className="sm:mx-auto sm:w-full sm:max-w-sm bg-gray-100 dark:bg-gray-800 p-6 rounded-2xl shadow-md">
         <h1 className="mt-5 text-center text-2xl font-bold text-gray-900 dark:text-white">
-          Login
+          Forgot Password
         </h1>
 
         <div className="mt-2 space-y-5">
@@ -86,33 +84,15 @@ const Login = () => {
               />
             </div>
 
-            {/* Remember Me & Forgot Password */}
-            <div className="flex items-center justify-between text-sm">
-              <label className="mt-5 flex items-center text-gray-900 dark:text-gray-300">
-                <input
-                  type="checkbox"
-                  checked={rememberMe}
-                  onChange={(e) => setRememberMe(e.target.checked)}
-                  className="mr-2 rounded border-gray-300 dark:border-gray-700"
-                />
-                Remember me
-              </label>
-              <a href="forgot-password" className="mt-5 text-indigo-600 hover:underline">
-                Forgot password?
-              </a>
-            </div>
-
-            {/* Sign In Button */}
-            <button
-              type="submit"
-              className="w-full rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus:outline-indigo-600"
-            >
+            {/* Sign Up Button */}
+            <button type="submit" className="w-full rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus:outline-indigo-600">
               Sign In
             </button>
           </form>
+
         </div>
       </div>
-      {/* Don't have an account? */}
+      {/* Already have an account? */}
       <p className="mt-10 text-center text-sm text-gray-600 dark:text-gray-300">
         Don't have an account?{" "}
         <a href="/register" className="text-indigo-600 hover:underline">
@@ -121,6 +101,10 @@ const Login = () => {
       </p>
     </div>
   );
-};
+
+}
 
 export default Login;
+
+
+//forgot password not working and remember me too

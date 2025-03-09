@@ -7,7 +7,7 @@ export default function ProfilePage() {
   const [showResetPopup, setShowResetPopup] = useState(false);
 
   useEffect(() => {
-    const uid = localStorage.getItem("userID");
+    const uid = sessionStorage.getItem("userID");
     if (uid) {
       fetch(`/api/user-details?uid=${uid}`)
         .then((res) => res.json())
