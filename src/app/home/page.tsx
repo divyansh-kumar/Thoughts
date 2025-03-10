@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import TopBar from "@/components/TopBar";
 
-const API_BASE_URL = "http://localhost:3000/api";
+const API_BASE_URL = "/api";
 const IMAGE_BASE_URL =
   "https://s3.us-east-005.backblazeb2.com/divyansh-testing";
 
