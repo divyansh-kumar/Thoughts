@@ -79,7 +79,7 @@ export default function Home() {
 }
 
 
-const handleSendEmail = async (post) => {
+const handleSendEmail = async (post: any) => {
   console.log('Sending email...', post);
   const endpoint = 'https://mail.divyanshkumar.workers.dev/'; // update with your Cloudflare Worker URL
   
