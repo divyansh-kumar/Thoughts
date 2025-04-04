@@ -15,7 +15,7 @@ export default function TopBar({ searchQuery, setSearchQuery }: TopBarProps) {
     <div className="w-full bg-white dark:bg-gray-900 shadow-sm">
       <div className="container mx-auto px-4 py-4 flex justify-between items-center">
         <h1 className="text-2xl font-bold text-gray-800 dark:text-white">
-          Public Posts
+        <a href="/home">Thoughts</a>
         </h1>
         <div className="flex space-x-4 items-center">
           <input
