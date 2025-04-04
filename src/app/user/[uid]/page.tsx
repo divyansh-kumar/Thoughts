@@ -22,7 +22,7 @@ export default function UserProfilePage() {
           return;
         }
         setUserData(data);
-        setIsFollowing(data.followingCount); // Set follow status from API
+        setIsFollowing(data.followingCount); 
       })
       .catch((err) => console.error("Fetch error:", err));
   }, [uid]);
@@ -42,7 +42,7 @@ export default function UserProfilePage() {
         body: JSON.stringify({ followerId: currentUid, followingId: uid, action }),
       });
       if (res.ok) {
-        setIsFollowing(!isFollowing); // Toggle state on success
+        setIsFollowing(!isFollowing); 
       } else {
         console.error("Follow action failed");
       }
