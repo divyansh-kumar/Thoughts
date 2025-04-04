@@ -1,10 +1,14 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation"; 
+import { useAuth } from "@/hooks/useAuth"; 
 
 export default function ProfilePage() {
   const [userData, setUserData] = useState<any>(null);
   const [showResetPopup, setShowResetPopup] = useState(false);
+  const router = useRouter(); 
+  useAuth();
 
   useEffect(() => {
     const uid = sessionStorage.getItem("userID");

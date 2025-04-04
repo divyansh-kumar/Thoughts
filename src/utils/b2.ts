@@ -12,7 +12,6 @@ const s3Client = new S3Client({
   },
 });
 
-// Middleware to remove x-amz-checksum-crc32 header
 const removeChecksumHeaderMiddleware: FinalizeRequestMiddleware<any, any> = (next, context) => async (args) => {
   if ("request" in args && args.request && typeof args.request === "object" && "headers" in args.request) {
     const request = args.request as { headers: Record<string, string> };

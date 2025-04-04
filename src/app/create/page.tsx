@@ -2,6 +2,8 @@
 
 import { useState, useCallback, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { useAuth } from "@/hooks/useAuth"; 
+
 
 export default function CreatePost() {
   const [formData, setFormData] = useState({
@@ -12,7 +14,8 @@ export default function CreatePost() {
   });
   const [isDragging, setIsDragging] = useState(false);
   const [uid, setUid] = useState<string | null>(null);
-  const router = useRouter();
+    const router = useRouter(); 
+    useAuth();
 
   useEffect(() => {
     const storedUid = sessionStorage.getItem("userID");

@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [rememberMe, setRememberMe] = useState(false); // Added for "Remember Me"
+  const [rememberMe, setRememberMe] = useState(false); 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const router = useRouter();
@@ -24,14 +24,12 @@ const Login = () => {
       const data = await response.json();
 
       if (response.ok) {
-        // Always store userID in sessionStorage
-        sessionStorage.setItem("email", email); // Optional, if you need email
+        sessionStorage.setItem("email", email); 
         sessionStorage.setItem("userID", data.userID);
 
-        // If "Remember Me" is checked, store in localStorage too
         if (rememberMe) {
           localStorage.setItem("userID", data.userID);
-          localStorage.setItem("email", email); // Optional, if you need email
+          localStorage.setItem("email", email);
         }
         router.push("/home");
       } else {

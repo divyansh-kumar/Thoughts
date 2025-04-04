@@ -2,18 +2,21 @@
 
 import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
+import { useRouter } from "next/navigation"; 
+import { useAuth } from "@/hooks/useAuth"; 
 
 export default function UserProfilePage() {
   const { uid } = useParams();
   const [userData, setUserData] = useState<any>(null);
   const [isFollowing, setIsFollowing] = useState(false);
   const [currentUid, setCurrentUid] = useState<string | null>(null);
+    const router = useRouter(); 
+    useAuth();
 
   useEffect(() => {
     const storedUid = sessionStorage.getItem("userID");
     setCurrentUid(storedUid);
 
-    // Fetch user details, including follow status
     fetch(`/api/user-details?uid=${uid}${storedUid ? `&currentUid=${storedUid}` : ""}`)
       .then((res) => res.json())
       .then((data) => {

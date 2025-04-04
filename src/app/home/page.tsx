@@ -2,6 +2,8 @@
 
 import { useState, useEffect } from "react";
 import TopBar from "@/components/TopBar";
+import { useRouter } from "next/navigation"; 
+import { useAuth } from "@/hooks/useAuth"; 
 
 const API_BASE_URL = "/api";
 const IMAGE_BASE_URL =
@@ -11,6 +13,9 @@ export default function Home() {
   const [posts, setPosts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
+
+  const router = useRouter(); 
+  useAuth();
 
   useEffect(() => {
     async function fetchPosts() {

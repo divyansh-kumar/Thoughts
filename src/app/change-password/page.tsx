@@ -2,6 +2,7 @@
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from '../../utils/supabase';
+import { useAuth } from "@/hooks/useAuth"; 
 
 
 const ChangePassword = () => {
@@ -9,7 +10,9 @@ const ChangePassword = () => {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const router = useRouter();
+
+  const router = useRouter(); 
+  useAuth();
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -28,7 +31,7 @@ const ChangePassword = () => {
         setError(error.message);
       } else {
         alert("Password updated successfully!");
-        router.push("/login"); // Redirect to login after success
+        router.push("/login"); 
       }
     } catch (err) {
       setError("An error occurred. Please try again later.");
